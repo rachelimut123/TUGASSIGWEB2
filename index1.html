@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet Map Estetik</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; background: #1a1a2e; display: flex; flex-direction: column; align-items: center; }
+        h1 { font-family: "Comic Sans MS", cursive, sans-serif; color: white; margin-top: 20px; }
+        #map { height: 70vh; width: 70vw; margin: 20px 0; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.2); }
+        .search-box {
+            background: rgba(255, 255, 255, 0.9); padding: 8px 12px;
+            border-radius: 8px; display: flex; flex-direction: column;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.2); margin-bottom: 20px;
+        }
+        .search-box input { border: none; outline: none; padding: 5px; width: 200px; margin-bottom: 5px; }
+        .search-box button { background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Peta Online</h1>
+    <div id="map"></div>
+    <div class="search-box">
+        <input type="text" id="search" placeholder="Cari lokasi...">
+        <button onclick="searchLocation()">Cari</button>
+    </div>
+    
+    <script>
+        var map = L.map('map').setView([-7.79558, 110.36949], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        
+        var marker = L.marker([-7.79558, 110.36949]).addTo(map)
+            .bindPopup('<b>Yogyakarta</b><br>Kota Budaya, Indonesia.')
+            .openPopup();
+        
+        function searchLocation() {
+            var query = document.getElementById('search').value;
+            if (query) {
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            var lat = data[0].lat;
+                            var lon = data[0].lon;
+                            map.setView([lat, lon], 13);
+                            marker.setLatLng([lat, lon]).bindPopup(`<b>${query}</b><br>(${lat}, ${lon})`).openPopup();
+                        } else {
+                            alert("Lokasi tidak ditemukan!");
+                        }
+                    });
+            }
+        }
+    </script>
+</body>
+</html>
